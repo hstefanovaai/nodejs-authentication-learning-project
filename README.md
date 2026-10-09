@@ -1,3 +1,5 @@
+<img width="783" height="448" alt="image" src="https://github.com/user-attachments/assets/fc7f9f70-8752-4759-b9e7-325a595c9539" />
+
 # Authentication Playground
 
 A minimal two-part project used to learn backend development by building an
