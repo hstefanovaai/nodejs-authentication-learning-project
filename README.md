@@ -1,16 +1,8 @@
 <img width="783" height="448" alt="image" src="https://github.com/user-attachments/assets/fc7f9f70-8752-4759-b9e7-325a595c9539" />
 
-# Authentication Playground
+# Plan:
 
-A minimal two-part project used to learn backend development by building an
-authentication system from scratch.
-
-- `server/` — Node.js + Express 5 + TypeScript API
-- `client/` — React 19 + TypeScript + Tailwind CSS 4 (Vite)
-
-Right now it does exactly one thing: the client asks the API `GET /api/health`
-and shows the answer. Everything else is still to be built — the roadmap lives
-in [AUTHENTICATION_PLAN.md](AUTHENTICATION_PLAN.md).
+<img width="715" height="262" alt="image" src="https://github.com/user-attachments/assets/b07069e2-3d90-4618-9850-7293c0c96d74" />
 
 ## Running it
 
