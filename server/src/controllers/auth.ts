@@ -139,7 +139,7 @@ export const postLogin = async (req: Request, res: Response) => {
   }
 };
 
-export const getLogin = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
     const userId = req.session.userId;
 
@@ -154,7 +154,13 @@ export const getLogin = async (req: Request, res: Response) => {
     res.status(200).json({
       user,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Session check error:", error);
+
+    return res.status(500).json({
+      message: "Something went wrong.",
+    });
+  }
 };
 
 export const postLogout = (req: Request, res: Response) => {
@@ -177,3 +183,5 @@ export const postLogout = (req: Request, res: Response) => {
     });
   });
 };
+
+

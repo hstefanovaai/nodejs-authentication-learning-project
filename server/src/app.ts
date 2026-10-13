@@ -3,6 +3,7 @@ import cors from "cors";
 
 import { env } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
+import productRoutes from "./routes/products.routes.js"
 
 import session from "express-session";
 import MySQLStore from "express-mysql-session";
@@ -24,10 +25,11 @@ export function createApp() {
   // later lets the browser send and receive auth cookies cross-origin.
   app.use(
     cors({
-      origin: process.env.CLIENT_URL,
+      origin: process.env.CLIENT_ORIGIN,
       credentials: true,
     }),
   );
+
 
   // Parse JSON request bodies into `req.body`.
   app.use(express.json());
@@ -48,6 +50,7 @@ export function createApp() {
     }),
   );
   app.use("/api/auth", authRoutes);
+  app.use("/api/products", productRoutes)
 
   return app;
 }
