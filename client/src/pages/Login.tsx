@@ -1,26 +1,36 @@
-import { useState } from "react";
+import { useState, type SyntheticEvent } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [user, setUser] = useState(() => {});
-  const [error, setError] = useState("")
-
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = async () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const signupMessage = location.state?.message as string | undefined;
+
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+
     try {
-      const user = await login(email, password);
+      await login(email, password);
 
-      setUser(user);
-      navigate("/products");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Login failed");
+      const destination = location.state?.from?.pathname || "/products";
+
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -28,7 +38,17 @@ export default function Login() {
         <h1 className="text-2xl font-semibold text-slate-900">Login</h1>
         <p className="mt-2 text-sm text-slate-600">Sign in to your account.</p>
 
-        <form className="mt-6 space-y-4">
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          {signupMessage && (
+            <div className="success-message">{signupMessage}</div>
+          )}
+
+          {error && (
+            <div className="error-message" role="alert">
+              {error}
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -68,11 +88,16 @@ export default function Login() {
           </div>
 
           <button
-            type="submit"
             className="w-full bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800 transition-colors font-medium"
+            type="submit"
+            disabled={submitting}
           >
-            Sign In
+            {submitting ? "Logging in..." : "Login"}
           </button>
+
+          <p className="auth-footer">
+            Don't have an account? <Link to="/signup">Sign up</Link>
+          </p>
         </form>
       </div>
     </main>

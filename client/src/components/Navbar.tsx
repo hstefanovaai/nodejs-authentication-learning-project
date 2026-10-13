@@ -1,12 +1,25 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  }
+
   const navLinks = [
-    { label: 'Products', href: '/products' },
-    { label: 'Login', href: '/login' },
-    { label: 'Sign up', href: '/signup' },
-    { label: 'Admin', href: '/admin' },
-  ]
+    { label: "Products", href: "/products" },
+    { label: "Login", href: "/login" },
+    { label: "Sign up", href: "/signup" },
+    { label: "Admin", href: "/admin" },
+  ];
 
   return (
     <nav className="bg-white border-b border-slate-200 shadow-sm">
@@ -19,15 +32,46 @@ export default function Navbar() {
           <div className="flex items-center gap-8">
             {/* Text Links */}
             <div className="flex gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
+              <Link
+                to="/products"
+                className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+              >
+                Products
+              </Link>
+
+              <Link
+                to="/admin"
+                className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+              >
+                admin
+              </Link>
+
+              {!user && !loading && (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
+
+              {!loading && user && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
                   className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
                 >
-                  {link.label}
-                </Link>
-              ))}
+                  logout
+                </button>
+              )}
             </div>
 
             {/* Icon Links */}
@@ -99,5 +143,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
