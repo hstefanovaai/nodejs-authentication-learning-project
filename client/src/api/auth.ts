@@ -1,5 +1,8 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
+// Since the frontend and backend run on different ports during development, 
+// include credentials: "include" in your requests so the browser sends and accepts the session cookie.
+
 export interface AuthUser {
   id: number;
   name: string;
