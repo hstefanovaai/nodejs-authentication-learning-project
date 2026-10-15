@@ -4,6 +4,11 @@
 
 <img width="715" height="262" alt="image" src="https://github.com/user-attachments/assets/b07069e2-3d90-4618-9850-7293c0c96d74" />
 
+# What each library does:
+<img width="715" height="258" alt="image" src="https://github.com/user-attachments/assets/ae69a274-f6b9-4933-91cb-f8f2216b478b" />
+
+
+
 ## Running it
 
 Two terminals.
