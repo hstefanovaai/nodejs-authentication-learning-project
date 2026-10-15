@@ -16,6 +16,7 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
   clientOrigin: required("CLIENT_ORIGIN"),
+  csrfSecret: required("CSRF_SECRET"),
 } as const;
 
 export const isProduction = env.nodeEnv === "production";

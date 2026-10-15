@@ -1,9 +1,14 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js"
+import {
+  doubleCsrfProtection,
+  invalidCsrfTokenError,
+} from "./middleware/csrf.js";
 
 import session from "express-session"; // init session middleware
 import MySQLStore from "express-mysql-session"; // store session in DB
@@ -54,8 +59,27 @@ export function createApp() {
       },
     }),
   );
+
+  // csrf-csrf reads the CSRF cookie from `req.cookies`, so cookie-parser must
+  // run after the session middleware and before the CSRF protection.
+  app.use(cookieParser());
+
+  // Reject any state-changing request (POST/PUT/PATCH/DELETE) that is missing
+  // a valid CSRF token. GET/HEAD/OPTIONS are ignored, so reads and the
+  // GET /api/auth/csrf-token route stay reachable without a token.
+  app.use(doubleCsrfProtection);
+
   app.use("/api/auth", authRoutes);
   app.use("/api/products", productRoutes)
+
+  // Turn CSRF failures into a consistent JSON 403 instead of the default
+  // HTML error page.
+  app.use((err: unknown, _req: Request, res: Response, next: NextFunction) => {
+    if (err === invalidCsrfTokenError) {
+      return res.status(403).json({ message: "Invalid CSRF token." });
+    }
+    next(err);
+  });
 
   return app;
 }
