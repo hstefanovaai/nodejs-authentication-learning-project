@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
+import { sendWelcomeEmail } from "../services/email.service.js";
 
 declare module "express-session" {
   interface SessionData {
@@ -27,7 +28,7 @@ export const postSignup = async (req: Request, res: Response) => {
       typeof password !== "string" ||
       !name.trim() ||
       name.trim().length > 100 ||
-      password.length < 12 ||
+      password.length < 6 ||
       password.length > 128 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
     ) {
@@ -59,7 +60,17 @@ export const postSignup = async (req: Request, res: Response) => {
       passwordHash,
     });
 
-    // 5. Returns the public user details without the password hash.
+    // 5. send welcome email
+    try {
+      await sendWelcomeEmail(email, name);
+    } catch (error) {
+      console.error("Welcome email failed", {
+        userId: user.id,
+        error,
+      });
+    }
+
+    // 6. Returns the public user details without the password hash.
     return res.status(201).json({
       message: "Account created successfully.",
       user: {
@@ -183,5 +194,3 @@ export const postLogout = (req: Request, res: Response) => {
     });
   });
 };
-
-
