@@ -243,13 +243,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const {  token, email, password, confirmPassword } = req.body;
-
-    console.log("params: ", req.params)
-    console.log("token: ", token)
-    console.log("email: ", email)
-    console.log("pass: ", password)
-    console.log("confirm pass: ", confirmPassword)
+    const { token, email, password, confirmPassword } = req.body;
 
     if (!token || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required." });
@@ -265,9 +259,8 @@ export const resetPassword = async (req: Request, res: Response) => {
         .json({ message: "Password must be at least 8 characters." });
     }
 
+    // in order to update the password the user should have matching hashed token that is not expired
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-    //   in order to update the password the user should have matching hashed token that is not expired
 
     const user = await User.findOne({
       where: {
