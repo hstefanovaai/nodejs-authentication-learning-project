@@ -1,6 +1,6 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
-// Since the frontend and backend run on different ports during development, 
+// Since the frontend and backend run on different ports during development,
 // include credentials: "include" in your requests so the browser sends and accepts the session cookie.
 
 export interface AuthUser {
@@ -126,4 +126,27 @@ export async function logout(): Promise<void> {
   });
   // The session (and its CSRF binding) is gone, so drop the cached token.
   csrfToken = null;
+}
+
+export async function forgotPassword(email: string): Promise<AuthResponse> {
+  const result = await request<AuthResponse>("/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+  return result;
+}
+
+export async function resetPassword(
+  token: string,
+  email: string,
+  password: string,
+  confirmPassword: string,
+): Promise<AuthResponse> {
+  const result = await request<AuthResponse>("/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, email, password, confirmPassword }),
+  });
+
+  return result;
 }

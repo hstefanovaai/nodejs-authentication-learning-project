@@ -98,6 +98,10 @@ export default function Login() {
           <p className="auth-footer">
             Don't have an account? <Link to="/signup">Sign up</Link>
           </p>
+
+          <p className="auth-footer">
+            <Link to="/forgot-password">Forgot password</Link>
+          </p>
         </form>
       </div>
     </main>

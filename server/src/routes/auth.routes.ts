@@ -4,6 +4,8 @@ import {
   postSignup,
   getUser,
   postLogout,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
@@ -25,6 +27,8 @@ router.get("/user", getUser);
 
 router.post("/logout", postLogout);
 
+router.post("/forgot-password", forgotPassword);
 
+router.post("/reset-password", resetPassword);
 
 export default router;

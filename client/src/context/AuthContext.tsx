@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useContext,
@@ -14,17 +13,18 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (
-    name: string,
-    email: string,
-    password: string
-  ) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (
+    token: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+  ) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -57,11 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }
 
-  async function signup(
-    name: string,
-    email: string,
-    password: string
-  ) {
+  async function signup(name: string, email: string, password: string) {
     await authApi.signup(name, email, password);
     // Signup does not create a session in our backend.
     // The user must log in afterward.
@@ -72,9 +68,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  async function forgotPassword(email: string) {
+    await authApi.forgotPassword(email);
+  }
+
+  async function resetPassword(
+    token: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+  ) {
+    await authApi.resetPassword(token, email, password, confirmPassword);
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, signup, logout }}
+      value={{
+        user,
+        loading,
+        login,
+        signup,
+        logout,
+        forgotPassword,
+        resetPassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

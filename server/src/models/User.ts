@@ -1,8 +1,4 @@
-import {
-  DataTypes,
-  Model,
-  Optional,
-} from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/database.js";
 
 interface UserAttributes {
@@ -10,6 +6,8 @@ interface UserAttributes {
   name: string;
   email: string;
   passwordHash: string;
+  resetToken?: string | null;
+  resetTokenExpiration?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -19,14 +17,16 @@ type UserCreationAttributes = Optional<
   "id" | "createdAt" | "updatedAt"
 >;
 
-class User extends Model<
-  UserAttributes,
-  UserCreationAttributes
-> implements UserAttributes {
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
   declare id: number;
   declare name: string;
   declare email: string;
   declare passwordHash: string;
+  declare resetToken: string | null;
+  declare resetTokenExpiration: Date | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -52,13 +52,23 @@ User.init(
       allowNull: false,
       field: "password_hash",
     },
+    resetToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+
+    },
+    resetTokenExpiration: {
+      type: DataTypes.DATE,
+      allowNull: true,
+
+    },
   },
   {
     sequelize,
     tableName: "users",
     timestamps: true,
     underscored: true,
-  }
+  },
 );
 
 export default User;

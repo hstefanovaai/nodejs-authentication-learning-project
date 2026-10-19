@@ -1,7 +1,13 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
 import { Request, Response } from "express";
-import { sendWelcomeEmail } from "../services/email.service.js";
+import {
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+} from "../services/email.service.js";
+import { Op } from "sequelize";
 
 declare module "express-session" {
   interface SessionData {
@@ -193,4 +199,104 @@ export const postLogout = (req: Request, res: Response) => {
       message: "Logout successful.",
     });
   });
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    const user = await User.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(200).json({
+        message: "If that email exists, a password reset link has been sent.",
+      });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+
+    user.resetToken = hashedToken;
+    user.resetTokenExpiration = new Date(Date.now() + 60 * 60 * 1000);
+
+    await user.save();
+
+    await sendPasswordResetEmail(user.email, rawToken);
+
+    res.status(200).json({
+      message: "If that email exists, a password reset link has been sent.",
+    });
+  } catch (err) {
+    console.log("Forgot password error: ", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const {  token, email, password, confirmPassword } = req.body;
+
+    console.log("params: ", req.params)
+    console.log("token: ", token)
+    console.log("email: ", email)
+    console.log("pass: ", password)
+    console.log("confirm pass: ", confirmPassword)
+
+    if (!token || !email || !password || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match." });
+    }
+
+    if (password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters." });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    //   in order to update the password the user should have matching hashed token that is not expired
+
+    const user = await User.findOne({
+      where: {
+        email,
+        resetToken: hashedToken,
+        resetTokenExpiration: {
+          [Op.gt]: new Date(),
+        },
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired reset token." });
+    }
+
+    const hashPassword = await bcrypt.hash(password, 12);
+
+    user.passwordHash = hashPassword;
+    user.resetToken = null;
+    user.resetTokenExpiration = null;
+
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Password has been reset successfully." });
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error." });
+  }
 };

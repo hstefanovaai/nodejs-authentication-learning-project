@@ -18,6 +18,24 @@ export async function sendWelcomeEmail(
   });
 }
 
+export async function sendPasswordResetEmail(
+  email: string,
+  token: string,
+): Promise<void> {
+  const resetLink = `${process.env.CLIENT_ORIGIN}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+  await sendEmail({
+    to: email,
+    subject: "Reset password",
+    text: `You requested a password reset`,
+    html: `
+      <div>
+        <p>This is the reset password <a href="${resetLink}">link </a>.</p>
+      </div>
+    `,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {
     const entities: Record<string, string> = {

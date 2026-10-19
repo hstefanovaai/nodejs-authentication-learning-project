@@ -1,0 +1,9 @@
+const path = require('path');
+
+// Paths are resolved from the directory you run `npx sequelize-cli` in (server/).
+module.exports = {
+  config: path.resolve('config', 'config.cjs'),
+  'models-path': path.resolve('models'),
+  'migrations-path': path.resolve('migrations'),
+  'seeders-path': path.resolve('seeders'),
+};

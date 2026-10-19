@@ -9,8 +9,8 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Favorites from "./pages/Favorites";
-
-import { useAuth } from "./context/AuthContext";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   return (
@@ -33,6 +33,9 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/favorites" element={<Favorites />} />
         </Route>
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route
           path="*"
