@@ -1,11 +1,13 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { createVerificationToken, hashToken } from "../helpers/tokens.js";
 
 import { Request, Response } from "express";
 import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendVerifyEmail,
 } from "../services/email.service.js";
 import { Op } from "sequelize";
 
@@ -26,6 +28,7 @@ declare module "express-session" {
 export const postSignup = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
+    const { token, tokenHash, expiresAt } = createVerificationToken();
 
     // 1. Validates the request body
     if (
@@ -64,15 +67,18 @@ export const postSignup = async (req: Request, res: Response) => {
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
+      emailVerificationTokenHash: tokenHash,
+      emailVerificationExpires: expiresAt,
+      isEmailVerified: false,
     });
 
-    // 5. send welcome email
+    // 5.Send verify email
     try {
-      await sendWelcomeEmail(email, name);
-    } catch (error) {
-      console.error("Welcome email failed", {
+      await sendVerifyEmail(email, token);
+    } catch (err) {
+      console.error("Verify email failed", {
         userId: user.id,
-        error,
+        err,
       });
     }
 
@@ -94,6 +100,68 @@ export const postSignup = async (req: Request, res: Response) => {
   }
 };
 
+export const postVerifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    const hashedToken = hashToken(token);
+
+    if (typeof token !== "string" || !token) {
+      return res
+        .status(400)
+        .json({ code: "INVALID_TOKEN", message: "Missing token." });
+    }
+
+    const user = await User.findOne({
+      where: {
+        emailVerificationTokenHash: hashedToken,
+        emailVerificationExpires: { [Op.gt]: new Date() },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        code: "INVALID_OR_EXPIRED_TOKEN",
+        message: "This link is invalid or has expired.",
+      });
+    }
+
+    // Single use: clear the token once it has been used
+    await user.update({
+      isEmailVerified: true,
+      emailVerificationTokenHash: null,
+      emailVerificationExpires: null,
+    });
+
+    res.json({ message: "Email verified." });
+  } catch (err) {
+    return res.status(500).json({ message: "Email was not verified." });
+  }
+};
+
+export async function resendVerificationEmail(req: Request, res: Response) {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Add valid email address." });
+  }
+
+  const user = await User.findOne({
+    where: { email, isEmailVerified: false },
+  });
+
+  if (!user || user.isEmailVerified) return;
+
+  const { token, tokenHash, expiresAt } = createVerificationToken();
+
+  await user.update({
+    emailVerificationTokenHash: tokenHash,
+    emailVerificationExpires: expiresAt,
+  });
+
+  await sendVerifyEmail(user.email, token);
+
+  return res.status(201).json({ message: "New verification email was sent." });
+}
+
 // POST /api/auth/login
 //
 // Regenerating the session = after registration or login, you replace the old session ID with a new one.Your application creates a new session ID after an important authentication-related action, so an attacker cannot reuse a session ID they forced or obtained before the user was authenticated.
@@ -112,7 +180,7 @@ export const postLogin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const existingUser = await User.findOne({
-      where: { email: email.trim().toLowerCase() },
+      where: { email: email.trim().toLowerCase(), isEmailVerified: true },
     });
 
     if (
@@ -236,7 +304,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
       message: "If that email exists, a password reset link has been sent.",
     });
   } catch (err) {
-    console.log("Forgot password error: ", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 };

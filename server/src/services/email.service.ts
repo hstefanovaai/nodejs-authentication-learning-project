@@ -35,6 +35,23 @@ export async function sendPasswordResetEmail(
     `,
   });
 }
+export async function sendVerifyEmail(
+  email: string,
+  token: string,
+): Promise<void> {
+  const verifyEmailLink = `${process.env.CLIENT_ORIGIN}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+
+  await sendEmail({
+    to: email,
+    subject: "Verify your email address",
+    text: `New user`,
+    html: `
+      <div>
+        <p>Verify your email address by clicking on this <a href="${verifyEmailLink}">link </a>.</p>
+      </div>
+    `,
+  });
+}
 
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {

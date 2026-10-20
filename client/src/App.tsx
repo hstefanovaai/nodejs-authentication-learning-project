@@ -11,6 +11,8 @@ import Cart from "./pages/Cart";
 import Favorites from "./pages/Favorites";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
+import ResendVerifyEmail from "./pages/ResendVerifyEmail";
 
 export default function App() {
   return (
@@ -36,6 +38,11 @@ export default function App() {
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/resend-verification"
+          element={<ResendVerifyEmail />}
+        />
 
         <Route
           path="*"

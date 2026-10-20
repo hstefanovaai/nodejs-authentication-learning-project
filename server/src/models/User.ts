@@ -8,6 +8,9 @@ interface UserAttributes {
   passwordHash: string;
   resetToken?: string | null;
   resetTokenExpiration?: Date | null;
+  isEmailVerified: boolean;
+  emailVerificationTokenHash: string | null;
+  emailVerificationExpires: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -27,6 +30,9 @@ class User
   declare passwordHash: string;
   declare resetToken: string | null;
   declare resetTokenExpiration: Date | null;
+  declare isEmailVerified: boolean;
+  declare emailVerificationTokenHash: string | null;
+  declare emailVerificationExpires: Date | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -47,6 +53,17 @@ User.init(
       allowNull: false,
       unique: true,
     },
+    isEmailVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    emailVerificationTokenHash: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+      unique: true,
+    },
+    emailVerificationExpires: { type: DataTypes.DATE, allowNull: true },
     passwordHash: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -55,12 +72,10 @@ User.init(
     resetToken: {
       type: DataTypes.STRING(255),
       allowNull: true,
-
     },
     resetTokenExpiration: {
       type: DataTypes.DATE,
       allowNull: true,
-
     },
   },
   {

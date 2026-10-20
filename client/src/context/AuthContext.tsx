@@ -22,6 +22,8 @@ interface AuthContextType {
     password: string,
     confirmPassword: string,
   ) => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,6 +83,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.resetPassword(token, email, password, confirmPassword);
   }
 
+  async function verifyEmail(token: string) {
+    await authApi.verifyEmail(token);
+  }
+
+  async function resendVerificationEmail(email: string) {
+    await authApi.resendVerificationEmail(email);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -91,6 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         forgotPassword,
         resetPassword,
+        verifyEmail,
+        resendVerificationEmail,
       }}
     >
       {children}

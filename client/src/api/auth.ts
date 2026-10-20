@@ -150,3 +150,19 @@ export async function resetPassword(
 
   return result;
 }
+
+export async function verifyEmail(token: string): Promise<AuthResponse> {
+  return request<AuthResponse>("/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function resendVerificationEmail(
+  email: string,
+): Promise<AuthResponse> {
+  return request<AuthResponse>("/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
