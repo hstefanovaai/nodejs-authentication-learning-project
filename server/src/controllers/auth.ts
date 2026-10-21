@@ -103,9 +103,7 @@ export const postVerifyEmail = async (req: Request, res: Response) => {
 
 export async function resendVerificationEmail(req: Request, res: Response) {
   const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: "Add valid email address." });
-  }
+
 
   const user = await User.findOne({
     where: { email, isEmailVerified: false },

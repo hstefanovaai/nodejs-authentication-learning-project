@@ -19,8 +19,8 @@ export default function SignUp() {
     setError("");
     setSuccess("");
 
-    if (password.length < 8 || password.length > 128) {
-      setError("Password must be between 8 and 128 characters.");
+    if (password.length < 6 || password.length > 128) {
+      setError("Password must be between 6 and 128 characters.");
       return;
     }
 

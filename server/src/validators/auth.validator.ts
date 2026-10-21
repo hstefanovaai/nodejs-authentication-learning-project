@@ -1,4 +1,3 @@
-
 import { body } from "express-validator";
 
 export const registerValidation = [
@@ -20,4 +19,12 @@ export const registerValidation = [
     .withMessage("Password must be a string")
     .isLength({ min: 6, max: 72 })
     .withMessage("Password must be between 6 and 72 characters"),
+];
+
+export const resendVerifyEmailValidation = [
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("A valid email is required")
+    .normalizeEmail(),
 ];

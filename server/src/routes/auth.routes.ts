@@ -11,8 +11,11 @@ import {
 } from "../controllers/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
-import { registerValidation } from "../validators/auth.validator.js";
-import { validateRequest } from "../middleware/validate.js";
+import {
+  registerValidation,
+  resendVerifyEmailValidation,
+} from "../validators/auth.validator.js";
+import { validateRequest } from "../middleware/validateRequest.js";
 import rateLimit from "express-rate-limit";
 
 const router = Router();
@@ -52,6 +55,11 @@ router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPassword);
 
 router.post("/verify-email", postVerifyEmail);
-router.post("/resend-verification", resendVerificationEmail);
+router.post(
+  "/resend-verification",
+  resendVerifyEmailValidation,
+  validateRequest,
+  resendVerificationEmail,
+);
 
 export default router;
