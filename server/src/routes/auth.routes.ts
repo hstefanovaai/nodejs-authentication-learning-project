@@ -7,10 +7,12 @@ import {
   forgotPassword,
   resetPassword,
   postVerifyEmail,
-  resendVerificationEmail
+  resendVerificationEmail,
 } from "../controllers/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
+import { registerValidation } from "../validators/auth.validator.js";
+import { validateRequest } from "../middleware/validate.js";
 import rateLimit from "express-rate-limit";
 
 const router = Router();
@@ -35,7 +37,11 @@ router.get("/csrf-token", (req, res) => {
 
 router.post("/login", postLogin);
 
-router.post("/signup", postSignup);
+// the order is important:
+// 1. registerValidation defines and executes the field checks.
+// 2. validateRequest checks whether they passed.
+// 3. postSignup runs only if the request is valid.
+router.post("/signup", registerValidation, validateRequest, postSignup);
 
 router.get("/user", getUser);
 
@@ -45,7 +51,7 @@ router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 
 router.post("/reset-password", resetPassword);
 
-router.post("/verify-email", postVerifyEmail)
-router.post("/resend-verification", resendVerificationEmail)
+router.post("/verify-email", postVerifyEmail);
+router.post("/resend-verification", resendVerificationEmail);
 
 export default router;

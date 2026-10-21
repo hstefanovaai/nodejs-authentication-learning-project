@@ -2,8 +2,9 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { createVerificationToken, hashToken } from "../helpers/tokens.js";
+import { authService } from "../services/auth.service.js";
 
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
@@ -25,52 +26,16 @@ declare module "express-session" {
 // 5. Returns the public user details without the password hash.
 
 // POST /api/auth/signup
-export const postSignup = async (req: Request, res: Response) => {
+export const postSignup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { name, email, password } = req.body;
     const { token, tokenHash, expiresAt } = createVerificationToken();
 
-    // 1. Validates the request body
-    if (
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      typeof password !== "string" ||
-      !name.trim() ||
-      name.trim().length > 100 ||
-      password.length < 6 ||
-      password.length > 128 ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-    ) {
-      return res.status(400).json({
-        message: "Please provide valid signup details.",
-      });
-    }
-
-    // 2. Converts the email to lowercase and checks for an existing account.
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const existingUser = await User.findOne({
-      where: { email: normalizedEmail },
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        message: "An account with this email already exists.",
-      });
-    }
-
-    // 3. Hashes the password using bcrypt.
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    // 4. Saves the new record through Sequelize.
-    const user = await User.create({
-      name: name.trim(),
-      email: normalizedEmail,
-      passwordHash,
-      emailVerificationTokenHash: tokenHash,
-      emailVerificationExpires: expiresAt,
-      isEmailVerified: false,
-    });
+    const user = await authService.signup(name, email, password);
 
     // 5.Send verify email
     try {
@@ -80,6 +45,8 @@ export const postSignup = async (req: Request, res: Response) => {
         userId: user.id,
         err,
       });
+
+      next(err);
     }
 
     // 6. Returns the public user details without the password hash.
@@ -92,11 +59,7 @@ export const postSignup = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Signup error:", error);
-
-    return res.status(500).json({
-      message: "Something went wrong.",
-    });
+    next(error)
   }
 };
 

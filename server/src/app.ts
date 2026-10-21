@@ -1,10 +1,11 @@
 import express, { NextFunction, Request, Response } from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-
+import { errorHandler } from "./middleware/error-hander.js";
 import { env } from "./config/env.js";
+
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
-import productRoutes from "./routes/products.routes.js"
+import productRoutes from "./routes/products.routes.js";
 import {
   doubleCsrfProtection,
   invalidCsrfTokenError,
@@ -16,8 +17,6 @@ import MySQLStore from "express-mysql-session"; // store session in DB
 export function createApp() {
   const app = express();
 
-  
-
   // Allow the React dev server to call this API. `credentials: true` is what
   // later lets the browser send and receive auth cookies cross-origin.
   app.use(
@@ -26,7 +25,6 @@ export function createApp() {
       credentials: true,
     }),
   );
-
 
   // Parse JSON request bodies into `req.body`.
   app.use(express.json());
@@ -70,7 +68,7 @@ export function createApp() {
   app.use(doubleCsrfProtection);
 
   app.use("/api/auth", authRoutes);
-  app.use("/api/products", productRoutes)
+  app.use("/api/products", productRoutes);
 
   // Turn CSRF failures into a consistent JSON 403 instead of the default
   // HTML error page.
@@ -81,5 +79,6 @@ export function createApp() {
     next(err);
   });
 
+  app.use(errorHandler);
   return app;
 }
