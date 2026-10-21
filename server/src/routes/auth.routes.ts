@@ -12,8 +12,12 @@ import {
 import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
 import {
+  forgotPasswordValidation,
+  loginValidation,
   registerValidation,
   resendVerifyEmailValidation,
+  resetPasswordValidation,
+  verifyEmailValidation,
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../middleware/validateRequest.js";
 import rateLimit from "express-rate-limit";
@@ -38,7 +42,7 @@ router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateCsrfToken(req, res) });
 });
 
-router.post("/login", postLogin);
+router.post("/login", loginValidation, validateRequest, postLogin);
 
 // the order is important:
 // 1. registerValidation defines and executes the field checks.
@@ -50,11 +54,27 @@ router.get("/user", getUser);
 
 router.post("/logout", postLogout);
 
-router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
+router.post(
+  "/forgot-password",
+  forgotPasswordLimiter,
+  forgotPasswordValidation,
+  validateRequest,
+  forgotPassword,
+);
 
-router.post("/reset-password", resetPassword);
+router.post(
+  "/reset-password",
+  resetPasswordValidation,
+  validateRequest,
+  resetPassword,
+);
 
-router.post("/verify-email", postVerifyEmail);
+router.post(
+  "/verify-email",
+  verifyEmailValidation,
+  validateRequest,
+  postVerifyEmail,
+);
 router.post(
   "/resend-verification",
   resendVerifyEmailValidation,

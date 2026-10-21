@@ -68,12 +68,6 @@ export const postVerifyEmail = async (req: Request, res: Response) => {
     const { token } = req.body;
     const hashedToken = hashToken(token);
 
-    if (typeof token !== "string" || !token) {
-      return res
-        .status(400)
-        .json({ code: "INVALID_TOKEN", message: "Missing token." });
-    }
-
     const user = await User.findOne({
       where: {
         emailVerificationTokenHash: hashedToken,
@@ -141,7 +135,7 @@ export const postLogin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const existingUser = await User.findOne({
-      where: { email: email.trim().toLowerCase(), isEmailVerified: true },
+      where: { email, isEmailVerified: true },
     });
 
     if (
@@ -234,10 +228,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required." });
-    }
-
     const user = await User.findOne({
       where: { email },
     });
@@ -271,21 +261,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { token, email, password, confirmPassword } = req.body;
-
-    if (!token || !email || !password || !confirmPassword) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match." });
-    }
-
-    if (password.length < 8) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 8 characters." });
-    }
+    const { token, email, password } = req.body;
 
     // in order to update the password the user should have matching hashed token that is not expired
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
