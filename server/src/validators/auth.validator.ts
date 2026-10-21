@@ -5,7 +5,9 @@ const emailField = () =>
     .trim()
     .isEmail()
     .withMessage("A valid email is required")
-    .normalizeEmail();
+    .normalizeEmail({
+      gmail_remove_dots: false,
+    });
 
 const tokenField = () =>
   body("token")
@@ -55,8 +57,10 @@ export const resetPasswordValidation = [
   body("password")
     .isString()
     .withMessage("Password must be a string")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters"),
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters")
+    .isLength({ max: 72 })
+    .withMessage("Password must be max 72 characters"),
 
   body("confirmPassword")
     .isString()

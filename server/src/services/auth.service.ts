@@ -11,8 +11,6 @@ export const authService = {
     expiresAt: Date,
   ) {
     const existingUser = await User.findOne({ where: { email: email } });
-    // const { token, tokenHash, expiresAt } = createVerificationToken();
-
     if (existingUser) {
       throw new AppError(409, "User already registered.");
     }

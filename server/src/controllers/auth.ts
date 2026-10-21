@@ -6,7 +6,6 @@ import { authService } from "../services/auth.service.js";
 
 import { NextFunction, Request, Response } from "express";
 import {
-  sendWelcomeEmail,
   sendPasswordResetEmail,
   sendVerifyEmail,
 } from "../services/email.service.js";
@@ -101,7 +100,11 @@ export const postVerifyEmail = async (req: Request, res: Response) => {
   }
 };
 
-export async function resendVerificationEmail(req: Request, res: Response, next: NextFunction) {
+export async function resendVerificationEmail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const { email } = req.body;
 
   const user = await User.findOne({
@@ -121,15 +124,17 @@ export async function resendVerificationEmail(req: Request, res: Response, next:
   });
 
   try {
-      await sendVerifyEmail(email, token);
-    } catch (err) {
-      console.error("Verify email failed", {
-        userId: user.id,
-        err,
-      });
+    await sendVerifyEmail(email, token);
+  } catch (err) {
+    console.error("Verify email failed", {
+      userId: user.id,
+      err,
+    });
 
-      return next(err);
-    }
+    return res
+      .status(201)
+      .json({ message: "New verification email was sent." });
+  }
 
   return res.status(201).json({ message: "New verification email was sent." });
 }
@@ -241,7 +246,11 @@ export const postLogout = (req: Request, res: Response) => {
   });
 };
 
-export const forgotPassword = async (req: Request, res: Response) => {
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { email } = req.body;
 
@@ -262,7 +271,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     await user.save();
 
-    await sendPasswordResetEmail(user.email, rawToken);
+    // Not awaited, so the response time does not reveal whether the account exists.
+    // The catch keeps a failed send from becoming an unhandled rejection.
+    sendPasswordResetEmail(user.email, rawToken).catch((err) => {
+      console.error("Password reset email failed", { userId: user.id, err });
+    });
 
     res.status(200).json({
       message: "If that email exists, a password reset link has been sent.",

@@ -20,20 +20,16 @@ import {
   verifyEmailValidation,
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-import rateLimit from "express-rate-limit";
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resendVerificationLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+  verifyEmailLimiter,
+} from "../middleware/rateLimiters.js";
 
 const router = Router();
-
-// Without a rate limit, anyone could hit your POST /api/auth/forgot-password endpoint thousands of times in a row. That opens the door to a few problems - spam abuse, user enumeration, brute force
-// Rate limit the forgot-password endpoint to prevent abuse
-// Max 5 requests per 15 minutes per IP
-const forgotPasswordLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { message: "Too many requests. Please try again later." },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 // Issues a CSRF token and sets the matching CSRF cookie. The client calls this
 // before performing any state-changing request and sends the returned token
@@ -42,13 +38,19 @@ router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateCsrfToken(req, res) });
 });
 
-router.post("/login", loginValidation, validateRequest, postLogin);
+router.post("/login", loginLimiter, loginValidation, validateRequest, postLogin);
 
 // the order is important:
 // 1. registerValidation defines and executes the field checks.
 // 2. validateRequest checks whether they passed.
 // 3. postSignup runs only if the request is valid.
-router.post("/signup", registerValidation, validateRequest, postSignup);
+router.post(
+  "/signup",
+  signupLimiter,
+  registerValidation,
+  validateRequest,
+  postSignup,
+);
 
 router.get("/user", getUser);
 
@@ -64,6 +66,7 @@ router.post(
 
 router.post(
   "/reset-password",
+  resetPasswordLimiter,
   resetPasswordValidation,
   validateRequest,
   resetPassword,
@@ -71,12 +74,14 @@ router.post(
 
 router.post(
   "/verify-email",
+  verifyEmailLimiter,
   verifyEmailValidation,
   validateRequest,
   postVerifyEmail,
 );
 router.post(
   "/resend-verification",
+  resendVerificationLimiter,
   resendVerifyEmailValidation,
   validateRequest,
   resendVerificationEmail,
