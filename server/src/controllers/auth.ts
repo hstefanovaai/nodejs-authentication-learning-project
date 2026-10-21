@@ -35,7 +35,13 @@ export const postSignup = async (
     const { name, email, password } = req.body;
     const { token, tokenHash, expiresAt } = createVerificationToken();
 
-    const user = await authService.signup(name, email, password);
+    const user = await authService.signup(
+      name,
+      email,
+      password,
+      tokenHash,
+      expiresAt,
+    );
 
     // 5.Send verify email
     try {
@@ -46,7 +52,7 @@ export const postSignup = async (
         err,
       });
 
-      next(err);
+      return next(err);
     }
 
     // 6. Returns the public user details without the password hash.
@@ -59,7 +65,7 @@ export const postSignup = async (
       },
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -95,15 +101,17 @@ export const postVerifyEmail = async (req: Request, res: Response) => {
   }
 };
 
-export async function resendVerificationEmail(req: Request, res: Response) {
+export async function resendVerificationEmail(req: Request, res: Response, next: NextFunction) {
   const { email } = req.body;
-
 
   const user = await User.findOne({
     where: { email, isEmailVerified: false },
   });
 
-  if (!user || user.isEmailVerified) return;
+  if (!user)
+    return res
+      .status(201)
+      .json({ message: "New verification email was sent." });
 
   const { token, tokenHash, expiresAt } = createVerificationToken();
 
@@ -112,7 +120,16 @@ export async function resendVerificationEmail(req: Request, res: Response) {
     emailVerificationExpires: expiresAt,
   });
 
-  await sendVerifyEmail(user.email, token);
+  try {
+      await sendVerifyEmail(email, token);
+    } catch (err) {
+      console.error("Verify email failed", {
+        userId: user.id,
+        err,
+      });
+
+      return next(err);
+    }
 
   return res.status(201).json({ message: "New verification email was sent." });
 }
@@ -239,12 +256,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(rawToken)
-      .digest("hex");
 
-    user.resetToken = hashedToken;
+    user.resetToken = hashToken(rawToken);
     user.resetTokenExpiration = new Date(Date.now() + 60 * 60 * 1000);
 
     await user.save();
@@ -264,12 +277,10 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { token, email, password } = req.body;
 
     // in order to update the password the user should have matching hashed token that is not expired
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
     const user = await User.findOne({
       where: {
         email,
-        resetToken: hashedToken,
+        resetToken: hashToken(token),
         resetTokenExpiration: {
           [Op.gt]: new Date(),
         },
