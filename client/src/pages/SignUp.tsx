@@ -1,6 +1,13 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ApiError } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+
+function inputClass(hasError: boolean) {
+  return `mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500 ${
+    hasError ? "border-red-600" : "border-slate-300"
+  }`;
+}
 
 export default function SignUp() {
   const { signup } = useAuth();
@@ -9,6 +16,9 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,9 +28,12 @@ export default function SignUp() {
 
     setError("");
     setSuccess("");
+    setNameError("");
+    setEmailError("");
+    setPasswordError("");
 
-    if (password.length < 6 || password.length > 128) {
-      setError("Password must be between 6 and 128 characters.");
+    if (!name.trim()) {
+      setNameError("Name is required.");
       return;
     }
 
@@ -36,7 +49,22 @@ export default function SignUp() {
         state: { message: "Account created. Please log in." },
       });
     } catch (err) {
-      err instanceof Error ? err.message : "Signup failed.";
+      if (err instanceof ApiError && err.fieldErrors?.length) {
+        for (const { field, message } of err.fieldErrors) {
+          if (field === "name") setNameError(message);
+          else if (field === "email") setEmailError(message);
+          else if (field === "password") setPasswordError(message);
+          else setError(message);
+        }
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "An unexpected error occurred.",
+        );
+      }
     } finally {
       setSubmitting(false);
     }
@@ -50,15 +78,15 @@ export default function SignUp() {
           Create a new account to get started.
         </p>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            {error && (
-              <div className="text-sm text-red" role="alert">
-                {error}
-              </div>
-            )}
-            {success && <div className="text-sm text-green">{success}</div>}
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+          {error && (
+            <div className="text-sm text-red-600" role="alert">
+              {error}
+            </div>
+          )}
+          {success && <div className="text-sm text-green-700">{success}</div>}
 
+          <div>
             <label
               htmlFor="name"
               className="block text-sm font-medium text-slate-700"
@@ -67,14 +95,20 @@ export default function SignUp() {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNameError("");
+              }}
               maxLength={100}
               required
               id="name"
               type="text"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!nameError)}
               placeholder="John Doe"
             />
+            {nameError && (
+              <p className="mt-1 text-sm text-red-600">{nameError}</p>
+            )}
           </div>
           <div>
             <label
@@ -85,14 +119,20 @@ export default function SignUp() {
             </label>
             <input
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError("");
+              }}
               maxLength={255}
               required
               id="email"
               type="email"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!emailError)}
               placeholder="you@example.com"
             />
+            {emailError && (
+              <p className="mt-1 text-sm text-red-600">{emailError}</p>
+            )}
           </div>
 
           <div>
@@ -104,14 +144,20 @@ export default function SignUp() {
             </label>
             <input
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError("");
+              }}
               maxLength={100}
               required
               id="password"
               type="password"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!passwordError)}
               placeholder="••••••••"
             />
+            {passwordError && (
+              <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+            )}
           </div>
 
           <button

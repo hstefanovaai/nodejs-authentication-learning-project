@@ -38,7 +38,13 @@ router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateCsrfToken(req, res) });
 });
 
-router.post("/login", loginLimiter, loginValidation, validateRequest, postLogin);
+router.post(
+  "/login",
+  loginLimiter,
+  loginValidation,
+  validateRequest,
+  postLogin,
+);
 
 // the order is important:
 // 1. registerValidation defines and executes the field checks.
@@ -46,7 +52,7 @@ router.post("/login", loginLimiter, loginValidation, validateRequest, postLogin)
 // 3. postSignup runs only if the request is valid.
 router.post(
   "/signup",
-  signupLimiter,
+  // signupLimiter,
   registerValidation,
   validateRequest,
   postSignup,

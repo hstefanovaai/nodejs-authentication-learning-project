@@ -1,5 +1,19 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
+export interface FieldError {
+  field: string;
+  message: string;
+}
+
+export class ApiError extends Error {
+  fieldErrors: FieldError[];
+
+  constructor(message: string, fieldErrors: FieldError[] = []) {
+    super(message);
+    this.fieldErrors = fieldErrors;
+  }
+}
+
 // Since the frontend and backend run on different ports during development,
 // include credentials: "include" in your requests so the browser sends and accepts the session cookie.
 
@@ -72,7 +86,10 @@ async function request<T>(
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.message || "Something went wrong.");
+    throw new ApiError(
+      data.message || "Something went wrong.",
+      data.errors,
+    );
   }
 
   return data as T;
