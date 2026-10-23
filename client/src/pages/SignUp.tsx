@@ -1,6 +1,13 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ApiError } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
+
+function inputClass(hasError: boolean) {
+  return `mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500 ${
+    hasError ? "border-red-600" : "border-slate-300"
+  }`;
+}
 
 export default function SignUp() {
   const { signup } = useAuth();
@@ -9,6 +16,9 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,9 +28,12 @@ export default function SignUp() {
 
     setError("");
     setSuccess("");
+    setNameError("");
+    setEmailError("");
+    setPasswordError("");
 
-    if (password.length < 8 || password.length > 128) {
-      setError("Password must be between 8 and 128 characters.");
+    if (!name.trim()) {
+      setNameError("Name is required.");
       return;
     }
 
@@ -36,7 +49,22 @@ export default function SignUp() {
         state: { message: "Account created. Please log in." },
       });
     } catch (err) {
-      err instanceof Error ? err.message : "Signup failed.";
+      if (err instanceof ApiError && err.fieldErrors?.length) {
+        for (const { field, message } of err.fieldErrors) {
+          if (field === "name") setNameError(message);
+          else if (field === "email") setEmailError(message);
+          else if (field === "password") setPasswordError(message);
+          else setError(message);
+        }
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "An unexpected error occurred.",
+        );
+      }
     } finally {
       setSubmitting(false);
     }
@@ -50,31 +78,37 @@ export default function SignUp() {
           Create a new account to get started.
         </p>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            {error && (
-              <div className="text-sm text-red" role="alert">
-                {error}
-              </div>
-            )}
-            {success && <div className="text-sm text-green">{success}</div>}
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+          {error && (
+            <div className="text-sm text-red-600" role="alert">
+              {error}
+            </div>
+          )}
+          {success && <div className="text-sm text-green-700">{success}</div>}
 
+          <div>
             <label
               htmlFor="name"
               className="block text-sm font-medium text-slate-700"
             >
-              Name 
+              Name
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNameError("");
+              }}
               maxLength={100}
               required
               id="name"
               type="text"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!nameError)}
               placeholder="John Doe"
             />
+            {nameError && (
+              <p className="mt-1 text-sm text-red-600">{nameError}</p>
+            )}
           </div>
           <div>
             <label
@@ -85,14 +119,20 @@ export default function SignUp() {
             </label>
             <input
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError("");
+              }}
               maxLength={255}
               required
               id="email"
               type="email"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!emailError)}
               placeholder="you@example.com"
             />
+            {emailError && (
+              <p className="mt-1 text-sm text-red-600">{emailError}</p>
+            )}
           </div>
 
           <div>
@@ -104,34 +144,21 @@ export default function SignUp() {
             </label>
             <input
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError("");
+              }}
               maxLength={100}
               required
               id="password"
               type="password"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
+              className={inputClass(!!passwordError)}
               placeholder="••••••••"
             />
+            {passwordError && (
+              <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+            )}
           </div>
-
-          {/* <div>
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Confirm Password
-            </label>
-            <input
-              value={confirmedPassword}
-              onChange={(e) => setConfirmedPassword(e.target.value)}
-              maxLength={100}
-              required
-              id="confirm-password"
-              type="password"
-              className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500"
-              placeholder="••••••••"
-            />
-          </div> */}
 
           <button
             className="w-full bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800 transition-colors font-medium"
@@ -149,105 +176,3 @@ export default function SignUp() {
     </main>
   );
 }
-
-
-
-// import { useState, type FormEvent } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useAuth } from "../context/AuthContext";
-
-// export default function Signup() {
-//   const { signup } = useAuth();
-//   const navigate = useNavigate();
-
-//   const [name, setName] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState("");
-//   const [success, setSuccess] = useState("");
-//   const [submitting, setSubmitting] = useState(false);
-
-//   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-//     e.preventDefault();
-//     setError("");
-//     setSuccess("");
-
-//     if (password.length < 12 || password.length > 128) {
-//       setError("Password must be between 12 and 128 characters.");
-//       return;
-//     }
-
-//     setSubmitting(true);
-
-//     try {
-//       await signup(name, email, password);
-
-//       setSuccess("Account created! Redirecting to login...");
-
-//       navigate("/login", {
-//         replace: true,
-//         state: { message: "Account created. Please log in." },
-//       });
-//     } catch (err) {
-//       setError(
-//         err instanceof Error ? err.message : "Signup failed."
-//       );
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   }
-
-//   return (
-//     <main className="auth-page">
-//       <form className="auth-card" onSubmit={handleSubmit}>
-//         <h1>Create an account</h1>
-//         <p>Sign up to get started.</p>
-
-//         {error && <div className="error-message" role="alert">{error}</div>}
-//         {success && <div className="success-message">{success}</div>}
-
-//         <label htmlFor="name">Name</label>
-//         <input
-//           id="name"
-//           type="text"
-//           autoComplete="name"
-//           value={name}
-//           onChange={(e) => setName(e.target.value)}
-//           maxLength={100}
-//           required
-//         />
-
-//         <label htmlFor="signup-email">Email</label>
-//         <input
-//           id="signup-email"
-//           type="email"
-//           autoComplete="email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//           maxLength={254}
-//           required
-//         />
-
-//         <label htmlFor="signup-password">Password</label>
-//         <input
-//           id="signup-password"
-//           type="password"
-//           autoComplete="new-password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           minLength={12}
-//           maxLength={128}
-//           required
-//         />
-
-//         <button type="submit" disabled={submitting}>
-//           {submitting ? "Creating account..." : "Sign Up"}
-//         </button>
-
-//         <p className="auth-footer">
-//           Already have an account? <Link to="/login">Log in</Link>
-//         </p>
-//       </form>
-//     </main>
-//   );
-// }

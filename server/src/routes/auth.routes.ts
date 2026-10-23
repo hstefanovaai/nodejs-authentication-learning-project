@@ -7,24 +7,29 @@ import {
   forgotPassword,
   resetPassword,
   postVerifyEmail,
-  resendVerificationEmail
+  resendVerificationEmail,
 } from "../controllers/auth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
-import rateLimit from "express-rate-limit";
+import {
+  forgotPasswordValidation,
+  loginValidation,
+  registerValidation,
+  resendVerifyEmailValidation,
+  resetPasswordValidation,
+  verifyEmailValidation,
+} from "../validators/auth.validator.js";
+import { validateRequest } from "../middleware/validateRequest.js";
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resendVerificationLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+  verifyEmailLimiter,
+} from "../middleware/rateLimiters.js";
 
 const router = Router();
-
-// Without a rate limit, anyone could hit your POST /api/auth/forgot-password endpoint thousands of times in a row. That opens the door to a few problems - spam abuse, user enumeration, brute force
-// Rate limit the forgot-password endpoint to prevent abuse
-// Max 5 requests per 15 minutes per IP
-const forgotPasswordLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { message: "Too many requests. Please try again later." },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 // Issues a CSRF token and sets the matching CSRF cookie. The client calls this
 // before performing any state-changing request and sends the returned token
@@ -33,19 +38,59 @@ router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateCsrfToken(req, res) });
 });
 
-router.post("/login", postLogin);
+router.post(
+  "/login",
+  loginLimiter,
+  loginValidation,
+  validateRequest,
+  postLogin,
+);
 
-router.post("/signup", postSignup);
+// the order is important:
+// 1. registerValidation defines and executes the field checks.
+// 2. validateRequest checks whether they passed.
+// 3. postSignup runs only if the request is valid.
+router.post(
+  "/signup",
+  // signupLimiter,
+  registerValidation,
+  validateRequest,
+  postSignup,
+);
 
 router.get("/user", getUser);
 
 router.post("/logout", postLogout);
 
-router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
+router.post(
+  "/forgot-password",
+  forgotPasswordLimiter,
+  forgotPasswordValidation,
+  validateRequest,
+  forgotPassword,
+);
 
-router.post("/reset-password", resetPassword);
+router.post(
+  "/reset-password",
+  resetPasswordLimiter,
+  resetPasswordValidation,
+  validateRequest,
+  resetPassword,
+);
 
-router.post("/verify-email", postVerifyEmail)
-router.post("/resend-verification", resendVerificationEmail)
+router.post(
+  "/verify-email",
+  verifyEmailLimiter,
+  verifyEmailValidation,
+  validateRequest,
+  postVerifyEmail,
+);
+router.post(
+  "/resend-verification",
+  resendVerificationLimiter,
+  resendVerifyEmailValidation,
+  validateRequest,
+  resendVerificationEmail,
+);
 
 export default router;
