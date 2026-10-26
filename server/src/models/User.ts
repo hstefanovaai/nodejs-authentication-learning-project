@@ -5,6 +5,7 @@ interface UserAttributes {
   id: number;
   name: string;
   email: string;
+  role: "user" | "admin";
   passwordHash: string;
   resetToken?: string | null;
   resetTokenExpiration?: Date | null;
@@ -15,9 +16,10 @@ interface UserAttributes {
   updatedAt?: Date;
 }
 
+// role is optional on creation because it has a defaultValue
 type UserCreationAttributes = Optional<
   UserAttributes,
-  "id" | "createdAt" | "updatedAt"
+  "id" | "role" | "createdAt" | "updatedAt"
 >;
 
 class User
@@ -27,6 +29,7 @@ class User
   declare id: number;
   declare name: string;
   declare email: string;
+  declare role: "user" | "admin";
   declare passwordHash: string;
   declare resetToken: string | null;
   declare resetTokenExpiration: Date | null;
@@ -35,6 +38,10 @@ class User
   declare emailVerificationExpires: Date | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
+
+  public isAdmin(): boolean {
+    return this.role === "admin";
+  }
 }
 
 User.init(
@@ -52,6 +59,11 @@ User.init(
       type: DataTypes.STRING(254),
       allowNull: false,
       unique: true,
+    },
+    role: {
+      type: DataTypes.ENUM("user", "admin"),
+      allowNull: false,
+      defaultValue: "user",
     },
     isEmailVerified: {
       type: DataTypes.BOOLEAN,
@@ -83,6 +95,17 @@ User.init(
     tableName: "users",
     timestamps: true,
     underscored: true,
+    //It prevents accidentally leaking hashes in API responses.
+    defaultScope: {
+      attributes: { exclude: ["password"] },
+    },
+    scopes: {
+      // Use this scope when you need the password (login flow)
+      // User.scope('withPassword').findOne(...)
+      withPassword: {
+        attributes: { include: ["password"] },
+      },
+    },
   },
 );
 

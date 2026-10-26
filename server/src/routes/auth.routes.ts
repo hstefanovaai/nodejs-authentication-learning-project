@@ -9,7 +9,6 @@ import {
   postVerifyEmail,
   resendVerificationEmail,
 } from "../controllers/auth.js";
-import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
 import {
   forgotPasswordValidation,

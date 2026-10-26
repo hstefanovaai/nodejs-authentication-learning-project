@@ -39,7 +39,7 @@ export function createApp() {
     database: process.env.DB_NAME,
   });
 
-  // Browser sends a cookie with every request. Cookie is stored on the frontend, session is stored on the backend.
+  // Browser sends a cookie with every request. Cookie is stored on the frontend, session is stored on the backend (database store, not Redis).
   // A client needs to tell the server to which session he belongs because the session in the end will be an entry that is stored in the DB.
   // we use a cookie where we store the hashed ID of the session.
   app.use(

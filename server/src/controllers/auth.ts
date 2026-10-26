@@ -14,6 +14,7 @@ import { Op } from "sequelize";
 declare module "express-session" {
   interface SessionData {
     userId?: number;
+    role: 'user' | 'admin';
   }
 }
 
@@ -177,6 +178,8 @@ export const postLogin = async (req: Request, res: Response) => {
       }
 
       req.session.userId = existingUser.id;
+      req.session.role = existingUser.role;
+
       req.session.save((saveError: Error | null) => {
         if (saveError) {
           return res.status(500).json({

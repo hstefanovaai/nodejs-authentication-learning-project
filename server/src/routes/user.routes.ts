@@ -1,0 +1,1 @@
+// router.delete('/users/:id', authorize('admin'), deleteUserHandler);
