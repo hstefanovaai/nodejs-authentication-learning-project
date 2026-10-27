@@ -96,16 +96,16 @@ User.init(
     timestamps: true,
     underscored: true,
     //It prevents accidentally leaking hashes in API responses.
-    defaultScope: {
-      attributes: { exclude: ["password"] },
-    },
-    scopes: {
-      // Use this scope when you need the password (login flow)
-      // User.scope('withPassword').findOne(...)
-      withPassword: {
-        attributes: { include: ["password"] },
-      },
-    },
+    // defaultScope: {
+    //   attributes: { exclude: ["passwordHash"] },
+    // },
+    // scopes: {
+    //   // Use this scope when you need the password (login flow)
+    //   // User.scope('withPassword').findOne(...)
+    //   withPassword: {
+    //     attributes: { include: ["passwordHash"] },
+    //   },
+    // },
   },
 );
 

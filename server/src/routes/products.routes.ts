@@ -7,7 +7,7 @@ const router = Router();
 
 // Use requireAuth only on endpoints that genuinely need authentication.
 
-router.get("/private", requireAuth, authorize("user"), (req, res) => {
+router.get("/private", requireAuth, authorize("user", "admin"), (req, res) => {
   res.json({ message: "Authenticated successfully." });
 });
 
