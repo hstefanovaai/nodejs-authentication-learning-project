@@ -9,7 +9,6 @@ import {
   postVerifyEmail,
   resendVerificationEmail,
 } from "../controllers/auth.js";
-import { requireAuth } from "../middleware/requireAuth.js";
 import { generateCsrfToken } from "../middleware/csrf.js";
 import {
   forgotPasswordValidation,
@@ -34,6 +33,8 @@ const router = Router();
 // Issues a CSRF token and sets the matching CSRF cookie. The client calls this
 // before performing any state-changing request and sends the returned token
 // back in the `x-csrf-token` header.
+
+// /api/auth/csrf-token
 router.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: generateCsrfToken(req, res) });
 });
