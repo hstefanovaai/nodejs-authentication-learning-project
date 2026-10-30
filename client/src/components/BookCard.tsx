@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Book } from "../data/books";
+import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoritesContext";
 
 const COVER_GRADIENTS: [string, string][] = [
   ["#6366f1", "#8b5cf6"],
@@ -68,11 +70,11 @@ export function BookCover({
   );
 }
 
-export function HeartIcon() {
+export function HeartIcon({ filled = false }: { filled?: boolean }) {
   return (
     <svg
       className="w-4 h-4"
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       viewBox="0 0 24 24"
     >
@@ -104,7 +106,10 @@ export function CartIcon() {
   );
 }
 
-function ActionButtons() {
+function ActionButtons({ book }: { book: Book }) {
+  const { addToCart } = useCart();
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(book.id);
   function stop(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -112,14 +117,20 @@ function ActionButtons() {
   return (
     <div className="flex items-center gap-2">
       <button
-        onClick={stop}
-        className="text-slate-400 hover:text-rose-500 transition-colors"
-        title="Add to favorites"
+        onClick={(e) => {
+          stop(e);
+          favorited ? removeFavorite(book.id) : addFavorite(book);
+        }}
+        className={`transition-colors ${favorited ? "text-rose-500" : "text-slate-400 hover:text-rose-500"}`}
+        title={favorited ? "Remove from favorites" : "Add to favorites"}
       >
-        <HeartIcon />
+        <HeartIcon filled={favorited} />
       </button>
       <button
-        onClick={stop}
+        onClick={(e) => {
+          stop(e);
+          addToCart(book);
+        }}
         className="text-slate-400 hover:text-slate-700 transition-colors"
         title="Add to cart"
       >
@@ -148,7 +159,7 @@ export function BookCard({
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="flex items-center justify-between">
             <StarRating rating={book.rating} />
-            <ActionButtons />
+            <ActionButtons book={book} />
           </div>
           <h3 className="text-sm font-semibold text-slate-900 mt-2 line-clamp-2">
             {book.title}
@@ -171,7 +182,7 @@ export function BookCard({
       <div className="p-3">
         <div className="flex items-center justify-between">
           <StarRating rating={book.rating} />
-          <ActionButtons />
+          <ActionButtons book={book} />
         </div>
         <h3 className="text-sm font-semibold text-slate-900 mt-2 line-clamp-2 min-h-10">
           {book.title}

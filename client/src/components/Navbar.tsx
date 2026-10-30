@@ -1,29 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import CartDropdown from "./CartDropdown";
+import ProfileDropdown from "./ProfileDropdown";
 
 export default function Navbar() {
-  const { user, loading, logout } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    try {
-      await logout();
-      navigate("/login", { replace: true });
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  }
-
-  const navLinks = [
-    { label: "Products", href: "/products" },
-    { label: "Login", href: "/login" },
-    { label: "Sign up", href: "/signup" },
-    { label: "Admin", href: "/admin" },
-  ];
+  const { user, loading } = useAuth();
+  const { totalPrice } = useCart();
 
   return (
     <nav className="bg-white border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="max-w-[1440px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo / Brand */}
           <div className="text-2xl font-bold text-slate-900">Logo</div>
@@ -37,6 +24,13 @@ export default function Navbar() {
                 className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
               >
                 Products
+              </Link>
+
+              <Link
+                to="/orders"
+                className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+              >
+                My Orders
               </Link>
 
               <Link
@@ -63,62 +57,12 @@ export default function Navbar() {
                 </>
               )}
 
-              {!loading && user && (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
-                >
-                  logout
-                </button>
-              )}
             </div>
 
             {/* Icon Links */}
             <div className="flex items-center gap-4 pl-6 border-l border-slate-200">
-              {/* Profile Icon */}
-              <Link
-                to="/profile"
-                className="text-slate-700 hover:text-slate-900 transition-colors"
-                title="Profile"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 12a3 3 0 100-6 3 3 0 000 6zm0 0c3.866 0 7.306 1.255 10 3.336V20H2v-4.664C4.694 13.255 8.134 12 12 12z"
-                  />
-                </svg>
-              </Link>
+              <ProfileDropdown />
 
-              {/* Cart Icon */}
-              <Link
-                to="/cart"
-                className="text-slate-700 hover:text-slate-900 transition-colors"
-                title="Cart"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </Link>
-
-              {/* Favorites Icon */}
               <Link
                 to="/favorites"
                 className="text-slate-700 hover:text-slate-900 transition-colors"
@@ -138,6 +82,15 @@ export default function Navbar() {
                   />
                 </svg>
               </Link>
+
+              <CartDropdown />
+
+              <div className="flex items-center gap-1 pl-3 border-l border-slate-200">
+                <span className="text-lg font-bold text-slate-900">
+                  {totalPrice.toFixed(2)}
+                </span>
+                <span className="text-sm text-slate-500">&euro;</span>
+              </div>
             </div>
           </div>
         </div>

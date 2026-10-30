@@ -10,6 +10,8 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Favorites from "./pages/Favorites";
+import OrderDetails from "./pages/OrderDetails";
+import OrderHistory from "./pages/OrderHistory";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -36,6 +38,8 @@ export default function App() {
 
           <Route path="/cart" element={<Cart />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/orders/:id" element={<OrderDetails />} />
         </Route>
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
