@@ -79,3 +79,7 @@ Two conventions worth noticing now:
 | `client/` | `npm run dev` | Vite dev server with HMR |
 | `client/` | `npm run build` | Typecheck + production bundle |
 | `client/` | `npm run lint` | oxlint |
+
+npm run migration -- add-products     # creates migrations/<timestamp>-add-products.cjs
+npm run seed -- demo-products         # creates seeders/<timestamp>-demo-products.cjs
+npm run seed:run                      # runs all seeders (db:seed:all)

@@ -7,7 +7,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migration": "node scripts/generate.cjs migration",
+    "migrate": "npx sequelize-cli db:migrate",
+    "seed": "node scripts/generate.cjs seed",
+    "seed:run": "npx sequelize-cli db:seed:all"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
