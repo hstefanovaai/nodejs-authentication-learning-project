@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { BOOKS, CATEGORIES, type Book } from "../data/books";
 
 const SORT_OPTIONS = [
@@ -154,7 +154,7 @@ function BookCard({ book, layout }: { book: Book; layout: "grid" | "list" }) {
             </button>
           </div>
         </div>
-        <h3 className="text-sm font-semibold text-slate-900 mt-2 line-clamp-2">
+        <h3 className="text-sm font-semibold text-slate-900 mt-2 line-clamp-2 min-h-10">
           {book.title}
         </h3>
         <p className="text-xs text-slate-500 mt-1 truncate">{book.author}</p>
@@ -172,6 +172,21 @@ export default function Products() {
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  useEffect(() => {
+    const el = sliderRef.current;
+    if (!el) return;
+    function update() {
+      if (!el) return;
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    }
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    return () => el.removeEventListener("scroll", update);
+  }, []);
 
   const topSellers = useMemo(
     () => [...BOOKS].sort((a, b) => b.popularity - a.popularity).slice(0, 20),
@@ -248,25 +263,27 @@ export default function Products() {
             Top 20 Most Selling Books
           </h2>
 
-          <div className="relative group/slider">
-            <button
-              onClick={() => scrollSlider("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:shadow-lg transition opacity-0 group-hover/slider:opacity-100"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="relative">
+            {canScrollLeft && (
+              <button
+                onClick={() => scrollSlider("left")}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:shadow-lg transition"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+            )}
 
             <div
               ref={sliderRef}
@@ -282,24 +299,26 @@ export default function Products() {
               ))}
             </div>
 
-            <button
-              onClick={() => scrollSlider("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:shadow-lg transition opacity-0 group-hover/slider:opacity-100"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {canScrollRight && (
+              <button
+                onClick={() => scrollSlider("right")}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:shadow-lg transition"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </section>
