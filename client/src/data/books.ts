@@ -1,0 +1,88 @@
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  price: number;
+  rating: number;
+  category: string;
+  popularity: number;
+  releaseYear: number;
+}
+
+export const CATEGORIES = [
+  "Fiction",
+  "Non-Fiction",
+  "Science Fiction",
+  "Fantasy",
+  "Mystery & Thriller",
+  "Romance",
+  "Biography",
+  "History",
+  "Science",
+  "Self-Help",
+  "Children's Books",
+  "Poetry",
+] as const;
+
+export const BOOKS: Book[] = [
+  { id: 1, title: "The Midnight Library", author: "Matt Haig", price: 14.99, rating: 4.5, category: "Fiction", popularity: 95, releaseYear: 2020 },
+  { id: 2, title: "Where the Crawdads Sing", author: "Delia Owens", price: 12.99, rating: 4.7, category: "Fiction", popularity: 89, releaseYear: 2018 },
+  { id: 3, title: "The Great Gatsby", author: "F. Scott Fitzgerald", price: 9.99, rating: 4.3, category: "Fiction", popularity: 72, releaseYear: 2020 },
+  { id: 4, title: "Normal People", author: "Sally Rooney", price: 13.49, rating: 4.2, category: "Fiction", popularity: 65, releaseYear: 2019 },
+  { id: 5, title: "Circe", author: "Madeline Miller", price: 15.99, rating: 4.6, category: "Fiction", popularity: 70, releaseYear: 2018 },
+  { id: 6, title: "Freakonomics", author: "Steven Levitt", price: 13.99, rating: 4.3, category: "Non-Fiction", popularity: 81, releaseYear: 2020 },
+  { id: 7, title: "Quiet", author: "Susan Cain", price: 14.99, rating: 4.5, category: "Non-Fiction", popularity: 68, releaseYear: 2019 },
+  { id: 8, title: "The Immortal Life of Henrietta Lacks", author: "Rebecca Skloot", price: 12.99, rating: 4.6, category: "Non-Fiction", popularity: 44, releaseYear: 2018 },
+  { id: 9, title: "Blink", author: "Malcolm Gladwell", price: 11.99, rating: 4.2, category: "Non-Fiction", popularity: 43, releaseYear: 2019 },
+  { id: 10, title: "Bad Blood", author: "John Carreyrou", price: 15.99, rating: 4.7, category: "Non-Fiction", popularity: 74, releaseYear: 2020 },
+  { id: 11, title: "Dune", author: "Frank Herbert", price: 16.99, rating: 4.8, category: "Science Fiction", popularity: 96, releaseYear: 2021 },
+  { id: 12, title: "Project Hail Mary", author: "Andy Weir", price: 14.99, rating: 4.9, category: "Science Fiction", popularity: 97, releaseYear: 2021 },
+  { id: 13, title: "The Hitchhiker's Guide to the Galaxy", author: "Douglas Adams", price: 11.99, rating: 4.7, category: "Science Fiction", popularity: 83, releaseYear: 2020 },
+  { id: 14, title: "Neuromancer", author: "William Gibson", price: 13.99, rating: 4.3, category: "Science Fiction", popularity: 41, releaseYear: 2019 },
+  { id: 15, title: "The Left Hand of Darkness", author: "Ursula K. Le Guin", price: 12.49, rating: 4.5, category: "Science Fiction", popularity: 52, releaseYear: 2018 },
+  { id: 16, title: "The Name of the Wind", author: "Patrick Rothfuss", price: 15.99, rating: 4.7, category: "Fantasy", popularity: 78, releaseYear: 2019 },
+  { id: 17, title: "The Hobbit", author: "J.R.R. Tolkien", price: 12.99, rating: 4.8, category: "Fantasy", popularity: 88, releaseYear: 2020 },
+  { id: 18, title: "A Game of Thrones", author: "George R.R. Martin", price: 16.99, rating: 4.6, category: "Fantasy", popularity: 76, releaseYear: 2019 },
+  { id: 19, title: "The Way of Kings", author: "Brandon Sanderson", price: 18.99, rating: 4.8, category: "Fantasy", popularity: 93, releaseYear: 2022 },
+  { id: 20, title: "Piranesi", author: "Susanna Clarke", price: 14.49, rating: 4.4, category: "Fantasy", popularity: 60, releaseYear: 2020 },
+  { id: 21, title: "The Girl with the Dragon Tattoo", author: "Stieg Larsson", price: 13.99, rating: 4.5, category: "Mystery & Thriller", popularity: 77, releaseYear: 2019 },
+  { id: 22, title: "Gone Girl", author: "Gillian Flynn", price: 12.99, rating: 4.3, category: "Mystery & Thriller", popularity: 92, releaseYear: 2021 },
+  { id: 23, title: "The Silent Patient", author: "Alex Michaelides", price: 14.99, rating: 4.4, category: "Mystery & Thriller", popularity: 82, releaseYear: 2022 },
+  { id: 24, title: "In the Woods", author: "Tana French", price: 13.49, rating: 4.2, category: "Mystery & Thriller", popularity: 54, releaseYear: 2018 },
+  { id: 25, title: "Big Little Lies", author: "Liane Moriarty", price: 11.99, rating: 4.3, category: "Mystery & Thriller", popularity: 66, releaseYear: 2019 },
+  { id: 26, title: "Pride and Prejudice", author: "Jane Austen", price: 8.99, rating: 4.7, category: "Romance", popularity: 84, releaseYear: 2020 },
+  { id: 27, title: "The Notebook", author: "Nicholas Sparks", price: 10.99, rating: 4.2, category: "Romance", popularity: 63, releaseYear: 2019 },
+  { id: 28, title: "Outlander", author: "Diana Gabaldon", price: 15.99, rating: 4.5, category: "Romance", popularity: 71, releaseYear: 2020 },
+  { id: 29, title: "Beach Read", author: "Emily Henry", price: 13.49, rating: 4.3, category: "Romance", popularity: 75, releaseYear: 2022 },
+  { id: 30, title: "The Hating Game", author: "Sally Thorne", price: 12.99, rating: 4.1, category: "Romance", popularity: 57, releaseYear: 2019 },
+  { id: 31, title: "Becoming", author: "Michelle Obama", price: 17.99, rating: 4.8, category: "Biography", popularity: 94, releaseYear: 2023 },
+  { id: 32, title: "Educated", author: "Tara Westover", price: 14.99, rating: 4.7, category: "Biography", popularity: 79, releaseYear: 2020 },
+  { id: 33, title: "Steve Jobs", author: "Walter Isaacson", price: 16.99, rating: 4.5, category: "Biography", popularity: 49, releaseYear: 2019 },
+  { id: 34, title: "Born a Crime", author: "Trevor Noah", price: 13.99, rating: 4.8, category: "Biography", popularity: 87, releaseYear: 2021 },
+  { id: 35, title: "The Diary of a Young Girl", author: "Anne Frank", price: 9.99, rating: 4.7, category: "Biography", popularity: 64, releaseYear: 2018 },
+  { id: 36, title: "Sapiens", author: "Yuval Noah Harari", price: 18.99, rating: 4.6, category: "History", popularity: 91, releaseYear: 2022 },
+  { id: 37, title: "The Silk Roads", author: "Peter Frankopan", price: 15.99, rating: 4.4, category: "History", popularity: 56, releaseYear: 2019 },
+  { id: 38, title: "Guns, Germs, and Steel", author: "Jared Diamond", price: 16.99, rating: 4.3, category: "History", popularity: 59, releaseYear: 2018 },
+  { id: 39, title: "The Rise and Fall of the Third Reich", author: "William Shirer", price: 19.99, rating: 4.5, category: "History", popularity: 48, releaseYear: 2018 },
+  { id: 40, title: "A People's History of the United States", author: "Howard Zinn", price: 14.99, rating: 4.4, category: "History", popularity: 51, releaseYear: 2019 },
+  { id: 41, title: "A Brief History of Time", author: "Stephen Hawking", price: 14.99, rating: 4.6, category: "Science", popularity: 90, releaseYear: 2021 },
+  { id: 42, title: "The Selfish Gene", author: "Richard Dawkins", price: 13.99, rating: 4.4, category: "Science", popularity: 53, releaseYear: 2019 },
+  { id: 43, title: "Cosmos", author: "Carl Sagan", price: 15.99, rating: 4.7, category: "Science", popularity: 85, releaseYear: 2020 },
+  { id: 44, title: "The Gene", author: "Siddhartha Mukherjee", price: 16.99, rating: 4.5, category: "Science", popularity: 61, releaseYear: 2020 },
+  { id: 45, title: "Astrophysics for People in a Hurry", author: "Neil deGrasse Tyson", price: 11.99, rating: 4.3, category: "Science", popularity: 69, releaseYear: 2021 },
+  { id: 46, title: "Atomic Habits", author: "James Clear", price: 14.99, rating: 4.8, category: "Self-Help", popularity: 99, releaseYear: 2024 },
+  { id: 47, title: "Thinking, Fast and Slow", author: "Daniel Kahneman", price: 16.99, rating: 4.5, category: "Self-Help", popularity: 86, releaseYear: 2020 },
+  { id: 48, title: "The 7 Habits of Highly Effective People", author: "Stephen Covey", price: 13.99, rating: 4.4, category: "Self-Help", popularity: 67, releaseYear: 2019 },
+  { id: 49, title: "How to Win Friends and Influence People", author: "Dale Carnegie", price: 10.99, rating: 4.6, category: "Self-Help", popularity: 46, releaseYear: 2020 },
+  { id: 50, title: "The Power of Now", author: "Eckhart Tolle", price: 12.99, rating: 4.3, category: "Self-Help", popularity: 50, releaseYear: 2018 },
+  { id: 51, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", price: 12.99, rating: 4.9, category: "Children's Books", popularity: 98, releaseYear: 2023 },
+  { id: 52, title: "Charlotte's Web", author: "E.B. White", price: 8.99, rating: 4.7, category: "Children's Books", popularity: 62, releaseYear: 2019 },
+  { id: 53, title: "The Giving Tree", author: "Shel Silverstein", price: 9.99, rating: 4.6, category: "Children's Books", popularity: 55, releaseYear: 2018 },
+  { id: 54, title: "Matilda", author: "Roald Dahl", price: 10.99, rating: 4.8, category: "Children's Books", popularity: 80, releaseYear: 2021 },
+  { id: 55, title: "Where the Wild Things Are", author: "Maurice Sendak", price: 11.99, rating: 4.5, category: "Children's Books", popularity: 47, releaseYear: 2018 },
+  { id: 56, title: "Milk and Honey", author: "Rupi Kaur", price: 9.99, rating: 4.1, category: "Poetry", popularity: 73, releaseYear: 2022 },
+  { id: 57, title: "The Sun and Her Flowers", author: "Rupi Kaur", price: 10.99, rating: 4.0, category: "Poetry", popularity: 58, releaseYear: 2020 },
+  { id: 58, title: "Leaves of Grass", author: "Walt Whitman", price: 8.99, rating: 4.6, category: "Poetry", popularity: 45, releaseYear: 2018 },
+  { id: 59, title: "The Waste Land", author: "T.S. Eliot", price: 7.99, rating: 4.4, category: "Poetry", popularity: 38, releaseYear: 2019 },
+  { id: 60, title: "Ariel", author: "Sylvia Plath", price: 11.99, rating: 4.5, category: "Poetry", popularity: 42, releaseYear: 2018 },
+];
