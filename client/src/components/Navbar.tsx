@@ -33,12 +33,14 @@ export default function Navbar() {
                 My Orders
               </Link>
 
-              <Link
-                to="/admin"
-                className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
-              >
-                admin
-              </Link>
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
 
               {!user && !loading && (
                 <>
